@@ -122,12 +122,26 @@ public class BakeOff2 extends PApplet {
 		translate(logoX, logoY); // translate draw center to the center oft he logo square
 		rotate(radians(logoRotation)); // rotate using the logo square as the origin
 		noStroke();
-		fill(60, 60, 192, 192);
+
+		// logo square turns green if it's in the right spot, blue if not
+		if (!checkForPotentialSuccess())
+			fill(60, 60, 192, 192);
+		else
+			fill(132, 237, 104, 192);
+
 		rect(0, 0, logoZ, logoZ);
 
 		// Draw a cirle in the center of the logo square
-		fill(40, 163, 7, 220);
+		fill(40, 163, 7, 210);
 		circle(0, 0, 5);
+
+		// Draw tick marks around the logo square
+		stroke(40, 163, 7, 200);
+		line(0, logoZ / 2 + 5, 0, logoZ / 2 - 5);
+		line(0, -logoZ / 2 + 5, 0, -logoZ / 2 - 5);
+
+		line(logoZ / 2 + 5, 0, logoZ / 2 - 5, 0);
+		line(-logoZ / 2 + 5, 0, -logoZ / 2 - 5, 0);
 
 		popMatrix();
 
@@ -198,17 +212,17 @@ public class BakeOff2 extends PApplet {
 		if (key == ' ') {
 			// check to see if user clicked middle of screen within 3 inches, which this
 			// code uses as a submit button
-			if (dist(width / 2, height / 2, mouseX, mouseY) < inchToPix(3f)) {
-				if (userDone == false && !checkForSuccess())
-					errorCount++;
 
-				trialIndex++; // and move on to next trial
+			if (userDone == false && !checkForSuccess())
+				errorCount++;
 
-				if (trialIndex == trialCount && userDone == false) {
-					userDone = true;
-					finishTime = millis();
-				}
+			trialIndex++; // and move on to next trial
+
+			if (trialIndex == trialCount && userDone == false) {
+				userDone = true;
+				finishTime = millis();
 			}
+
 		}
 
 		// Key Q, rotate counterclockwise
@@ -231,10 +245,10 @@ public class BakeOff2 extends PApplet {
 		if (key == CODED) {
 			if (keyCode == LEFT)
 				logoX -= inchToPix(.02f);
-			
+
 			if (keyCode == RIGHT)
 				logoX += inchToPix(.02f);
-			
+
 			if (keyCode == UP)
 				logoY -= inchToPix(.02f);
 
@@ -258,6 +272,15 @@ public class BakeOff2 extends PApplet {
 				+ calculateDifferenceBetweenAngles(d.rotation, logoRotation) + ")");
 		println("Close Enough Z: " + closeZ + " (logo Z = " + d.z + ", destination Z = " + logoZ + ")");
 		println("Close enough all: " + (closeDist && closeRotation && closeZ));
+
+		return closeDist && closeRotation && closeZ;
+	}
+
+	public boolean checkForPotentialSuccess() {
+		Destination d = destinations.get(trialIndex);
+		boolean closeDist = dist(d.x, d.y, logoX, logoY) < inchToPix(.05f); // has to be within +-0.05"
+		boolean closeRotation = calculateDifferenceBetweenAngles(d.rotation, logoRotation) <= 5;
+		boolean closeZ = abs(d.z - logoZ) < inchToPix(.1f); // has to be within +-0.1"
 
 		return closeDist && closeRotation && closeZ;
 	}
