@@ -103,6 +103,17 @@ public class BakeOff2 extends PApplet {
 			else
 				stroke(128, 128, 128, 128); // set color to semi translucent
 			rect(0, 0, d.z, d.z);
+
+			// Draw a circle in the center of the squares
+			circle(0, 0, 3);
+
+			// Draw tick marks
+			line(0, d.z / 2 + 5, 0, d.z / 2 - 5);
+			line(0, -d.z / 2 + 5, 0, -d.z / 2 - 5);
+
+			line(d.z / 2 + 5, 0, d.z / 2 - 5, 0);
+			line(-d.z / 2 + 5, 0, -d.z / 2 - 5, 0);
+
 			popMatrix();
 		}
 
@@ -113,6 +124,11 @@ public class BakeOff2 extends PApplet {
 		noStroke();
 		fill(60, 60, 192, 192);
 		rect(0, 0, logoZ, logoZ);
+
+		// Draw a cirle in the center of the logo square
+		fill(40, 163, 7, 220);
+		circle(0, 0, 5);
+
 		popMatrix();
 
 		// ===========DRAW EXAMPLE CONTROLS=================
@@ -167,22 +183,65 @@ public class BakeOff2 extends PApplet {
 			startTime = millis();
 			println("time started!");
 		}
+
+		logoX = mouseX;
+		logoY = mouseY;
 	}
 
 	public void mouseReleased() {
-		// check to see if user clicked middle of screen within 3 inches, which this
-		// code uses as a submit button
-		if (dist(width / 2, height / 2, mouseX, mouseY) < inchToPix(3f)) {
-			if (userDone == false && !checkForSuccess())
-				errorCount++;
 
-			trialIndex++; // and move on to next trial
+	}
 
-			if (trialIndex == trialCount && userDone == false) {
-				userDone = true;
-				finishTime = millis();
+	public void keyPressed() {
+
+		// Confirm location on key press
+		if (key == ' ') {
+			// check to see if user clicked middle of screen within 3 inches, which this
+			// code uses as a submit button
+			if (dist(width / 2, height / 2, mouseX, mouseY) < inchToPix(3f)) {
+				if (userDone == false && !checkForSuccess())
+					errorCount++;
+
+				trialIndex++; // and move on to next trial
+
+				if (trialIndex == trialCount && userDone == false) {
+					userDone = true;
+					finishTime = millis();
+				}
 			}
 		}
+
+		// Key Q, rotate counterclockwise
+		if (key == 'a')
+			logoRotation--;
+
+		// Key E, rotate clockwise
+		if (key == 'd')
+			logoRotation++;
+
+		// lower left corner, decrease Z
+		if (key == 's')
+			logoZ = constrain(logoZ - inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
+
+		// lower right corner, increase Z
+		if (key == 'w')
+			logoZ = constrain(logoZ + inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
+
+		// left middle, move left
+		if (key == CODED) {
+			if (keyCode == LEFT)
+				logoX -= inchToPix(.02f);
+			
+			if (keyCode == RIGHT)
+				logoX += inchToPix(.02f);
+			
+			if (keyCode == UP)
+				logoY -= inchToPix(.02f);
+
+			if (keyCode == DOWN)
+				logoY += inchToPix(.02f);
+		}
+
 	}
 
 	// probably shouldn't modify this, but email me if you want to for some good
@@ -217,4 +276,5 @@ public class BakeOff2 extends PApplet {
 	float inchToPix(float inch) {
 		return inch * screenPPI;
 	}
+
 }
