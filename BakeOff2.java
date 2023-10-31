@@ -16,6 +16,9 @@ public class BakeOff2 extends PApplet {
 	int startTime = 0; // time starts when the first click is captured
 	int finishTime = 0; // records the time of the final click
 	boolean userDone = false; // is the user done
+	float speedModifier = 2;
+	boolean toggleSpeed = false;
+	
 
 	final int screenPPI = 72; // what is the DPI of the screen you are using
 	// you can test this by drawing a 72x72 pixel rectangle in code, and then
@@ -154,41 +157,41 @@ public class BakeOff2 extends PApplet {
 	// my example design for control, which is terrible
 	void scaffoldControlLogic() {
 		// upper left corner, rotate counterclockwise
-		text("CCW", inchToPix(.4f), inchToPix(.4f));
-		if (mousePressed && dist(0, 0, mouseX, mouseY) < inchToPix(.8f))
-			logoRotation--;
-
-		// upper right corner, rotate clockwise
-		text("CW", width - inchToPix(.4f), inchToPix(.4f));
-		if (mousePressed && dist(width, 0, mouseX, mouseY) < inchToPix(.8f))
-			logoRotation++;
-
-		// lower left corner, decrease Z
-		text("-", inchToPix(.4f), height - inchToPix(.4f));
-		if (mousePressed && dist(0, height, mouseX, mouseY) < inchToPix(.8f))
-			logoZ = constrain(logoZ - inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
-
-		// lower right corner, increase Z
-		text("+", width - inchToPix(.4f), height - inchToPix(.4f));
-		if (mousePressed && dist(width, height, mouseX, mouseY) < inchToPix(.8f))
-			logoZ = constrain(logoZ + inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
-
-		// left middle, move left
-		text("left", inchToPix(.4f), height / 2);
-		if (mousePressed && dist(0, height / 2, mouseX, mouseY) < inchToPix(.8f))
-			logoX -= inchToPix(.02f);
-
-		text("right", width - inchToPix(.4f), height / 2);
-		if (mousePressed && dist(width, height / 2, mouseX, mouseY) < inchToPix(.8f))
-			logoX += inchToPix(.02f);
-
-		text("up", width / 2, inchToPix(.4f));
-		if (mousePressed && dist(width / 2, 0, mouseX, mouseY) < inchToPix(.8f))
-			logoY -= inchToPix(.02f);
-
-		text("down", width / 2, height - inchToPix(.4f));
-		if (mousePressed && dist(width / 2, height, mouseX, mouseY) < inchToPix(.8f))
-			logoY += inchToPix(.02f);
+//		text("CCW", inchToPix(.4f), inchToPix(.4f));
+//		if (mousePressed && dist(0, 0, mouseX, mouseY) < inchToPix(.8f))
+//			logoRotation--;
+//
+//		// upper right corner, rotate clockwise
+//		text("CW", width - inchToPix(.4f), inchToPix(.4f));
+//		if (mousePressed && dist(width, 0, mouseX, mouseY) < inchToPix(.8f))
+//			logoRotation++;
+//
+//		// lower left corner, decrease Z
+//		text("-", inchToPix(.4f), height - inchToPix(.4f));
+//		if (mousePressed && dist(0, height, mouseX, mouseY) < inchToPix(.8f))
+//			logoZ = constrain(logoZ - inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
+//
+//		// lower right corner, increase Z
+//		text("+", width - inchToPix(.4f), height - inchToPix(.4f));
+//		if (mousePressed && dist(width, height, mouseX, mouseY) < inchToPix(.8f))
+//			logoZ = constrain(logoZ + inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
+//
+//		// left middle, move left
+//		text("left", inchToPix(.4f), height / 2);
+//		if (mousePressed && dist(0, height / 2, mouseX, mouseY) < inchToPix(.8f))
+//			logoX -= inchToPix(.02f);
+//
+//		text("right", width - inchToPix(.4f), height / 2);
+//		if (mousePressed && dist(width, height / 2, mouseX, mouseY) < inchToPix(.8f))
+//			logoX += inchToPix(.02f);
+//
+//		text("up", width / 2, inchToPix(.4f));
+//		if (mousePressed && dist(width / 2, 0, mouseX, mouseY) < inchToPix(.8f))
+//			logoY -= inchToPix(.02f);
+//
+//		text("down", width / 2, height - inchToPix(.4f));
+//		if (mousePressed && dist(width / 2, height, mouseX, mouseY) < inchToPix(.8f))
+//			logoY += inchToPix(.02f);
 	}
 
 	public void mousePressed() {
@@ -222,26 +225,9 @@ public class BakeOff2 extends PApplet {
 				userDone = true;
 				finishTime = millis();
 			}
-
 		}
-
-		// Key Q, rotate counterclockwise
-		if (key == 'a')
-			logoRotation--;
-
-		// Key E, rotate clockwise
-		if (key == 'd')
-			logoRotation++;
-
-		// lower left corner, decrease Z
-		if (key == 's')
-			logoZ = constrain(logoZ - inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
-
-		// lower right corner, increase Z
-		if (key == 'w')
-			logoZ = constrain(logoZ + inchToPix(.02f), (float) .01, inchToPix(4f)); // leave min and max alone!
-
-		// left middle, move left
+		
+		// move in directions
 		if (key == CODED) {
 			if (keyCode == LEFT)
 				logoX -= inchToPix(.02f);
@@ -254,7 +240,32 @@ public class BakeOff2 extends PApplet {
 
 			if (keyCode == DOWN)
 				logoY += inchToPix(.02f);
-		}
+
+			if (keyCode == SHIFT)
+			{
+				toggleSpeed = !toggleSpeed;
+				if(toggleSpeed)
+					speedModifier = 2;
+				else
+					speedModifier = 3;
+			}
+		}		
+
+		// Key Q, rotate counterclockwise
+		if (key == 'a' || key == 'q')
+			logoRotation -= speedModifier;
+
+		// Key E, rotate clockwise
+		if (key == 'd' || key == 'e')
+			logoRotation += speedModifier;
+
+		// lower left corner, decrease Z
+		if (key == 's')
+			logoZ = constrain(logoZ - inchToPix(.02f) * speedModifier, (float) .01, inchToPix(4f)); // leave min and max alone!
+
+		// lower right corner, increase Z
+		if (key == 'w')
+			logoZ = constrain(logoZ + inchToPix(.02f) * speedModifier, (float) .01, inchToPix(4f)); // leave min and max alone!
 
 	}
 
